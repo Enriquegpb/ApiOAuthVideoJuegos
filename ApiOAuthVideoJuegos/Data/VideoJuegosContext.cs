@@ -7,5 +7,6 @@ namespace ApiOAuthVideoJuegos.Data
     {
         public VideoJuegosContext(DbContextOptions<VideoJuegosContext> options) : base(options) { }
         public DbSet<VideoJuego> VideoJuegos { get; set; }
+        public DbSet<UsuarioGaming> Usuarios { get; set; }
     }
 }

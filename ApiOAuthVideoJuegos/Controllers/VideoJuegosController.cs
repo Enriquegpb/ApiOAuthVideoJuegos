@@ -1,5 +1,6 @@
 ﻿using ApiOAuthVideoJuegos.Models;
 using ApiOAuthVideoJuegos.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,6 +16,7 @@ namespace ApiOAuthVideoJuegos.Controllers
             this.repo = repo;
         }
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<List<VideoJuego>>> GetVideoJuegos()
         {
             List<VideoJuego> videoJuegos = await this.repo.GetVideoJuegosAsync();
