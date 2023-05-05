@@ -4,7 +4,10 @@ using ApiOAuthVideoJuegos.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace ApiOAuthVideoJuegos.Controllers
 {
@@ -36,9 +39,15 @@ namespace ApiOAuthVideoJuegos.Controllers
                 SigningCredentials credentials =
                     new SigningCredentials(this.helper.GetKeyToken(), SecurityAlgorithms.HmacSha256);
                 //GENERACION DEL JWT TOKEN CON SUS CORRESPONDIENTES DATOS
+                string jsonUsuarioVideojuego = JsonConvert.SerializeObject(usuario);
+                Claim[] informacion = new[]
+                {
+                    new Claim("UserData", jsonUsuarioVideojuego)
+                };
 
                 JwtSecurityToken token =
                     new JwtSecurityToken(
+                        claims: informacion,
                         issuer: this.helper.Issuer,
                         audience: this.helper.Audience,
                         signingCredentials: credentials,

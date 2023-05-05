@@ -3,6 +3,8 @@ using ApiOAuthVideoJuegos.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.Security.Claims;
 
 namespace ApiOAuthVideoJuegos.Controllers
 {
@@ -15,6 +17,18 @@ namespace ApiOAuthVideoJuegos.Controllers
         {
             this.repo = repo;
         }
+        [Authorize]
+        [HttpGet]
+        [Route("[action]")]
+        public async Task<ActionResult<UsuarioGaming>> PerfilUsuarioGaming()
+        {
+            Claim claim = HttpContext.User.Claims.SingleOrDefault(x => x.Type == "UserData");
+            string jsonUsuarioGaming =
+                claim.Value;
+            UsuarioGaming usuario = JsonConvert.DeserializeObject<UsuarioGaming>(jsonUsuarioGaming);
+            return usuario;
+        }
+
         [HttpGet]
         [Authorize]
         public async Task<ActionResult<List<VideoJuego>>> GetVideoJuegos()
