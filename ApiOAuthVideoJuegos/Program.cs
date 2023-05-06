@@ -4,6 +4,9 @@ using ApiOAuthVideoJuegos.Models;
 using ApiOAuthVideoJuegos.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using NSwag;
+using NSwag.Generation.Processors.Security;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,32 +22,69 @@ builder.Services.AddTransient<RepositoryUsuariosGaming>();
 builder.Services.AddDbContext<VideoJuegosContext>(options => options.UseSqlServer(connectionString));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(options =>
+//{
+//    options.SwaggerDoc("v1", new OpenApiInfo
+//    {
+//        Title = "Apii OAuth Videojuegos 2023",
+//        Version = "v1",
+//        Description = "Api Videojuegos con seguridad token"
+//    });
+//});
+
+
+builder.Services.AddOpenApiDocument(document =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "Apii OAuth Videojuegos 2023",
-        Version = "v1",
-        Description = "Api Videojuegos con seguridad token"
-    });
+    document.Title = "Api Empleados";
+    document.Description = "Api Timers 2023. Ejemplo OAuth";
+
+    // CONFIGURAMOS LA SEGURIDAD JWT PARA SWAGGER,
+    // PERMITE AÑADIR EL TOKEN JWT A LA CABECERA.
+    document.AddSecurity("JWT", Enumerable.Empty<string>(),
+        new NSwag.OpenApiSecurityScheme
+        {
+            Type = OpenApiSecuritySchemeType.ApiKey,
+            Name = "Authorization",
+            In = OpenApiSecurityApiKeyLocation.Header,
+            Description = "Copia y pega el Token en el campo 'Value:' así: Bearer {Token JWT}."
+        }
+    );
+
+    document.OperationProcessors.Add(
+        new AspNetCoreOperationSecurityScopeProcessor("JWT"));
 });
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
-app.UseSwagger();
+//app.UseSwagger();
+
+app.UseOpenApi();
 app.UseSwaggerUI(options =>
 {
-    options.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "Api Crud Videojuegos");
+    options.InjectStylesheet("/css/bootstrap.css");
+    options.InjectStylesheet("/css/monokai.css");
+    //options.InjectStylesheet("/css/material3x.css");
+    options.SwaggerEndpoint(
+        url: "/swagger/v1/swagger.json", name: "Api v1");
     options.RoutePrefix = "";
+    options.DocExpansion(DocExpansion.None);
 });
+
+//app.UseSwaggerUI(options =>
+//{
+//    options.SwaggerEndpoint(url: "/swagger/v1/swagger.json", name: "Api Crud Videojuegos");
+//    options.RoutePrefix = "";
+//});
+
 if (app.Environment.IsDevelopment())
 {
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 
